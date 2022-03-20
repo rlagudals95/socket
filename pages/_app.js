@@ -2,24 +2,43 @@ import "../styles/globals.css";
 import "semantic-ui-css/semantic.min.css";
 import Footer from "../src/component/Footer";
 import Top from "../src/component/Top";
+import React, { useRef } from 'react';
+import SockJsClient from 'react-stomp';
 
 function MyApp({ Component, pageProps }) {
+  const $websocket = useRef(null);
+
+  const handleMsg = msg => {
+    console.log(msg);
+  };
+
+  const handleClickSendTo = () => {
+    $websocket.current.sendMessage('/sendTo');
+  };
+
+  const handleClickSendTemplate = () => {
+    $websocket.current.sendMessage('/Template');
+  }
+
   return (
     <div style={{ width: 1000, margin: "0 auto" }}>
-      <Top />
+      <SockJsClient
+        url="http://localhost:8080/test"
+        topics={['/topics/sendTo', '/topics/template', '/topics/api']}
+        onMessage={msg => {
+          console.log(msg);
+        }}
+        ref={$websocket}
+      />
+      <button onClick={handleClickSendTo}>SendTo</button>
+      <button onClick={handleClickSendTemplate}>SendTemplate</button>
+      {/* <Top />
       <Component {...pageProps} />
-      <Footer />
+      <Footer /> */}
     </div>
   );
 }
 
 export default MyApp;
 
-/**
- * 페이지 전환시 레이아웃을 유지할 수 있습니다.
-페이지 전환시 상태값을 유지할 수 있습니다.
-componentDidCatch를 이용해서 커스텀 에러 핸들링을 할 수 있습니다.
-추가적인 데이터를 페이지로 주입시켜주는게 가능합니다.
-글로벌 CSS 를 이곳에 선언합니다.
- * 
- */
+
